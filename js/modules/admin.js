@@ -61,3 +61,10 @@ async function updateAccountInfo() {
 }
 async function changePassword() {
     if (!currentUser) { alert('Faça login!'); return; }
+
+    const newPass = prompt('Nova senha (mín. 8 caracteres):');
+    if (!newPass || newPass.length < 8) { alert('Senha inválida!'); return; }
+    const { error } = await supabase.auth.updateUser({ password: newPass });
+    if (error) { alert('Erro: ' + error.message); } else { alert('✅ Senha alterada com sucesso!'); }
+}
+// ============================================================
