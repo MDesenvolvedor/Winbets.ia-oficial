@@ -1,8 +1,36 @@
-// MOEDAS E BANKROLL
 // ============================================================
-const exchangeRates = { 'USD':1.00, 'KZ':912.50, 'EUR':0.92, 'BRL':5.15, 'GBP':0.78, 'AOA':912.50 };
-const currencySymbols = { 'USD':'$', 'KZ':'Kz', 'EUR':'€', 'BRL':'R$', 'GBP':'£', 'AOA':'Kz' };
-const currencyNames = { 'USD':'Dólar', 'KZ':'Kwanza', 'EUR':'Euro', 'BRL':'Real', 'GBP':'Libra', 'AOA':'Kwanza' };
+// BANKROLL — GESTÃO DE BANCA E MOEDAS
+// ============================================================
+
+// ── TAXAS DE CÂMBIO ─────────────────────────────────────────
+const exchangeRates = {
+    'USD': 1.00,
+    'KZ': 912.50,
+    'EUR': 0.92,
+    'BRL': 5.15,
+    'GBP': 0.78,
+    'AOA': 912.50
+};
+
+const currencySymbols = {
+    'USD': '$',
+    'KZ': 'Kz',
+    'EUR': '€',
+    'BRL': 'R$',
+    'GBP': '£',
+    'AOA': 'Kz'
+};
+
+const currencyNames = {
+    'USD': 'Dólar',
+    'KZ': 'Kwanza',
+    'EUR': 'Euro',
+    'BRL': 'Real',
+    'GBP': 'Libra',
+    'AOA': 'Kwanza'
+};
+
+// ── VARIÁVEIS GLOBAIS ──────────────────────────────────────
 let userCurrency = localStorage.getItem('userCurrency') || 'KZ';
 let userBalanceInUSD = 1000;
 let demoBalance = parseFloat(localStorage.getItem('demoBalance')) || 50000;
@@ -10,13 +38,66 @@ let simulatorHistory = JSON.parse(localStorage.getItem('simulatorHistory')) || [
 let pendingSimulations = JSON.parse(localStorage.getItem('pendingSimulations')) || [];
 let selectedGames = [];
 
-function convertCurrency(amount, fromCurrency, toCurrency) { return (amount / exchangeRates[fromCurrency]) * exchangeRates[toCurrency]; }
-function formatCurrency(amount, currency = userCurrency) { const symbol = currencySymbols[currency] || '$'; const converted = convertCurrency(amount, 'USD', currency); if (currency === 'KZ' || currency === 'AOA') return `${symbol} ${Math.round(converted).toLocaleString()}`; return `${symbol} ${converted.toFixed(2)}`; }
-function formatDemoCurrency(amountInKZ) { const converted = convertCurrency(amountInKZ, 'KZ', userCurrency); const symbol = currencySymbols[userCurrency]; if (userCurrency === 'KZ' || userCurrency === 'AOA') return `${symbol} ${Math.round(converted).toLocaleString()}`; return `${symbol} ${converted.toFixed(2)}`; }
-function updateMiniBankrollDisplay() { const el = document.getElementById('miniBankrollDisplay'); if (el) { const balance = convertCurrency(userBalanceInUSD, 'USD', userCurrency); el.innerHTML = userCurrency === 'KZ' || userCurrency === 'AOA' ? `💰 ${Math.round(balance).toLocaleString()}` : `💰 ${balance.toFixed(2)}`; } }
-function updateDemoBalanceTop() { const el = document.getElementById('demoBalanceTopValue'); if (el) { const converted = convertCurrency(demoBalance, 'KZ', userCurrency); el.innerHTML = userCurrency === 'KZ' || userCurrency === 'AOA' ? `🎮 Demo: ${currencySymbols[userCurrency]} ${Math.round(converted).toLocaleString()}` : `🎮 Demo: ${currencySymbols[userCurrency]} ${converted.toFixed(2)}`; } }
-function updateDemoDisplay() { const el = document.getElementById('demoBalanceDisplay'); if (el) el.innerHTML = formatDemoCurrency(demoBalance); updateDemoBalanceTop(); }
-function changeCurrency(newCurrency) { userCurrency = newCurrency; localStorage.setItem('userCurrency', userCurrency); updateMiniBankrollDisplay(); updateDemoBalanceTop(); updateDemoDisplay(); }
+// ── FUNÇÕES DE CONVERSÃO ────────────────────────────────────
+function convertCurrency(amount, fromCurrency, toCurrency) {
+    return (amount / exchangeRates[fromCurrency]) * exchangeRates[toCurrency];
+}
+
+function formatCurrency(amount, currency = userCurrency) {
+    const symbol = currencySymbols[currency] || '$';
+    const converted = convertCurrency(amount, 'USD', currency);
+    if (currency === 'KZ' || currency === 'AOA') {
+        return `${symbol} ${Math.round(converted).toLocaleString()}`;
+    }
+    return `${symbol} ${converted.toFixed(2)}`;
+}
+
+function formatDemoCurrency(amountInKZ) {
+    const converted = convertCurrency(amountInKZ, 'KZ', userCurrency);
+    const symbol = currencySymbols[userCurrency];
+    if (userCurrency === 'KZ' || userCurrency === 'AOA') {
+        return `${symbol} ${Math.round(converted).toLocaleString()}`;
+    }
+    return `${symbol} ${converted.toFixed(2)}`;
+}
+
+// ── ATUALIZAR DISPLAYS ──────────────────────────────────────
+function updateMiniBankrollDisplay() {
+    const el = document.getElementById('miniBankrollDisplay');
+    if (el) {
+        const balance = convertCurrency(userBalanceInUSD, 'USD', userCurrency);
+        el.innerHTML = userCurrency === 'KZ' || userCurrency === 'AOA' 
+            ? `💰 ${Math.round(balance).toLocaleString()}`
+            : `💰 ${balance.toFixed(2)}`;
+    }
+}
+
+function updateDemoBalanceTop() {
+    const el = document.getElementById('demoBalanceTopValue');
+    if (el) {
+        const converted = convertCurrency(demoBalance, 'KZ', userCurrency);
+        el.innerHTML = userCurrency === 'KZ' || userCurrency === 'AOA'
+            ? `🎮 Demo: ${currencySymbols[userCurrency]} ${Math.round(converted).toLocaleString()}`
+            : `🎮 Demo: ${currencySymbols[userCurrency]} ${converted.toFixed(2)}`;
+    }
+}
+
+function updateDemoDisplay() {
+    const el = document.getElementById('demoBalanceDisplay');
+    if (el) el.innerHTML = formatDemoCurrency(demoBalance);
+    updateDemoBalanceTop();
+}
+
+// ── MUDAR MOEDA ─────────────────────────────────────────────
+function changeCurrency(newCurrency) {
+    userCurrency = newCurrency;
+    localStorage.setItem('userCurrency', userCurrency);
+    updateMiniBankrollDisplay();
+    updateDemoBalanceTop();
+    updateDemoDisplay();
+}
+
+// ── MODAL DE BANKROLL ──────────────────────────────────────
 function openBankrollModal() {
     const modalContent = document.getElementById('bankrollModalContent');
     modalContent.innerHTML = `
@@ -45,7 +126,12 @@ function openBankrollModal() {
     `;
     document.getElementById('bankrollModal').style.display = 'flex';
 }
-function closeBankrollModal() { document.getElementById('bankrollModal').style.display = 'none'; }
+
+function closeBankrollModal() {
+    document.getElementById('bankrollModal').style.display = 'none';
+}
+
+// ── ATUALIZAR BANKROLL ──────────────────────────────────────
 async function updateBankrollValue() {
     const newValue = parseFloat(document.getElementById('newBankrollInput')?.value);
     if (!isNaN(newValue) && newValue > 0) {
@@ -53,15 +139,35 @@ async function updateBankrollValue() {
         await updateUserBankroll(amountInUSD);
         openBankrollModal();
         alert(`✅ Banca atualizada para ${formatCurrency(userBalanceInUSD)}`);
-    } else { alert('Digite um valor válido'); }
+    } else {
+        alert('Digite um valor válido');
+    }
 }
+
 async function updateUserBankroll(newAmount) {
     if (!currentUser) return;
     userBalanceInUSD = newAmount;
-    const { error } = await supabase.from('users').update({ bankroll: newAmount }).eq('id', currentUser.id);
-    if (error) console.error('Erro ao atualizar bankroll:', error);
+    
+    // Verificar se Supabase está disponível
+    const supabase = window.supabaseClient || window.__supabase || window.supabase;
+    if (supabase && typeof supabase.from === 'function') {
+        try {
+            const { error } = await supabase.from('users').update({ bankroll: newAmount }).eq('id', currentUser.id);
+            if (error) console.error('Erro ao atualizar bankroll:', error);
+        } catch (e) {
+            console.warn('⚠️ Erro ao atualizar bankroll no Supabase:', e.message);
+        }
+    } else {
+        console.warn('⚠️ Supabase não disponível. Bankroll salvo apenas localmente.');
+    }
+    
     updateMiniBankrollDisplay();
 }
-function copyText(text) { navigator.clipboard.writeText(text); alert('Copiado!'); }
+
+// ── COPIAR TEXTO ─────────────────────────────────────────────
+function copyText(text) {
+    navigator.clipboard.writeText(text);
+    alert('Copiado!');
+}
 
 // ============================================================
